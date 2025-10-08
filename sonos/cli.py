@@ -7,7 +7,7 @@ import click
 from . import sonos_actions
 from .get_lyrics import get_lyrics #uses genius.com
 import random
-from .config import master_speaker
+#from .config import master_speaker
 
 def bold(text):
     return "\033[1m" + text + "\033[0m"
@@ -29,20 +29,15 @@ class Config():
 pass_config = click.make_pass_decorator(Config, ensure=True)
 
 @click.group()
-@click.option("-m", "--master", help="The name of the master speaker")
-@click.option("-v", "--verbose", is_flag=True, help="Display additional information")
+@click.option("-s", "--speaker", help="The name of the master speaker")
+#@click.option("-v", "--verbose", is_flag=True, help="Display additional information")
 @pass_config
-def cli(config, master, verbose):
+def cli(config, speaker):
     '''Sonos command line app; master defaults to "Office2"; verbose defaults to False '''
-    config.verbose = verbose
-    if not master:
-        sonos_actions.master = sonos_actions.set_master(master_speaker)
-        #master = "Office2"
-    else:
-        sonos_actions.master = sonos_actions.set_master(master)
-
-    if verbose:
-        click.echo(f"Master speaker is {master}: {sonos_actions.master.ip_address}")
+    sonos_actions.set_master(speaker)
+    #config.verbose = verbose
+    #if verbose:
+    #    click.echo(f"Master speaker is {master}: {sonos_actions.master.ip_address}")
 
 @cli.command()
 @click.argument('title', type=str, required=True, nargs=-1)
@@ -115,7 +110,7 @@ def play_from_queue(position):
         sonos_actions.play_from_queue(position-1)
         click.echo(f"Playing track {position}: {lst[position-1]}")
     else:
-        click.echo(f"{s} is out of the range of the queue")
+        click.echo(f"{position} is out of the range of the queue")
 
 @cli.command()
 @click.argument('playlist', type=click.STRING, required=True, nargs=1)
